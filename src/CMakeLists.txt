@@ -1,6 +1,8 @@
 
 add_definitions(-O -Wall -Werror --std=gnu99 -D_GNU_SOURCE)
 
+set(GCC_COVERAGE_LINK_FLAGS "-lz")
+
 # The version number.
 set(UWSC_VERSION_MAJOR 3)
 set(UWSC_VERSION_MINOR 3)
@@ -14,7 +16,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/buff
 set(EXTRA_LIBS ${LIBEV_LIBRARY} dl)
 set(SOURCE_FILES uwsc.c log.c utils.c buffer/buffer.c sha1.c ssl.c)
 
-option(BUILD_SHARED_LIBS "Build shared library" ON)
+option(BUILD_SHARED_LIBS "Build shared library" OFF)
 option(BUILD_STATIC_LIBS "Build static library" ON)
 
 if(NOT BUILD_SHARED_LIBS AND NOT BUILD_STATIC_LIBS)
@@ -24,7 +26,7 @@ endif()
 set(UWSC_SSL_SUPPORT_CONFIG 1)
 option(UWSC_SSL_SUPPORT "SSL support" ON)
 
-option(UWSC_USE_OPENSSL "Force select OpenSSL" OFF)
+option(UWSC_USE_OPENSSL "Force select OpenSSL" ON)
 option(UWSC_USE_WOLFSSL "Force select WolfSSL(CyaSSL)" OFF)
 option(UWSC_USE_MBEDTLS "Force select MbedTLS(PolarSSL)" OFF)
 
@@ -118,8 +120,6 @@ endif()
 
 # configure a header file to pass some of the CMake settings to the source code
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
-add_subdirectory(lua)
 
 install(
     FILES
