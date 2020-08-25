@@ -92,8 +92,7 @@ static bool parse_header(struct uwsc_client *cl)
     frame->opcode = head & 0x0F;
 
     if (!fin || frame->opcode == UWSC_OP_CONTINUE) {
-        uwsc_error(cl, UWSC_ERROR_NOT_SUPPORT, "Not support fragment");
-        return false;
+        frame->opcode = UWSC_OP_FRAGMENT;
     }
 
     len = buffer_pull_u8(rb);
@@ -177,6 +176,13 @@ static bool dispach_message(struct uwsc_client *cl)
             uwsc_free(cl);
         break;
 
+    case UWSC_OP_FRAGMENT: {
+        if (cl->onmessage)
+        {
+            cl->onmessage(cl, payload, frame->payloadlen, false);
+        }
+    } break;
+
     default:
         uwsc_log_err("unknown opcode - %d\n", frame->opcode);
         uwsc_send_close(cl, UWSC_CLOSE_STATUS_PROTOCOL_ERR, "unknown opcode");
@@ -219,7 +225,7 @@ static int parse_http_header(struct uwsc_client *cl)
         k = strtok(NULL, "\r\n");
         if (!k)
             break;
-        
+
         v = strchr(k, ':');
         if (!v)
             break;
@@ -259,7 +265,7 @@ static int parse_http_header(struct uwsc_client *cl)
 
     if (!has_upgrade || !has_connection || !has_sec_webSocket_accept)
         return -1;
-    
+
     return 0;
 }
 
@@ -310,7 +316,7 @@ static void uwsc_parse(struct uwsc_client *cl)
             if (!parse_frame(cl))
                 break;
         }
-       
+
     } while(!err);
 
     if (err)
@@ -495,7 +501,7 @@ static void uwsc_handshake(struct uwsc_client *cl, const char *host, int port,
     uint8_t nonce[16];
 
     get_nonce(nonce, sizeof(nonce));
-    
+
     b64_encode(nonce, sizeof(nonce), cl->key, sizeof(cl->key));
 
     buffer_put_printf(wb, "GET %s HTTP/1.1\r\n", path);

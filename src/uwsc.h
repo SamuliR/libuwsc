@@ -76,7 +76,8 @@ enum {
     UWSC_OP_BINARY     = 0x2,
     UWSC_OP_CLOSE      = 0x8,
     UWSC_OP_PING       = 0x9,
-    UWSC_OP_PONG       = 0xA
+    UWSC_OP_PONG       = 0xA,
+    UWSC_OP_FRAGMENT   = 0xB
 };
 
 struct uwsc_frame {
